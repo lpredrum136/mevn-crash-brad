@@ -1,0 +1,33 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const posts = require('./routes/api/posts');
+const connectDB = require('../config/db');
+
+const app = express();
+
+// Init middleware
+app.use(express.json());
+app.use(cors());
+
+// Connect to MongoDB
+connectDB();
+
+// Use routes
+app.use('/api/posts', posts);
+
+// Handle production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(__dirname + '/public/'));
+
+  // any routes, handle single page app
+  app.get(/.*/, (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+  });
+}
+
+const port = process.env.PORT || 5000;
+
+app.listen(port, () => {
+  console.log(`Server started on port ${port}`);
+});
